@@ -7,416 +7,124 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #21262d;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --accent-blue: #58a6ff;
-            --accent-green: #3fb950;
-            --accent-orange: #f0883e;
-            --accent-purple: #a371f7;
-            --accent-red: #f85149;
-            --border-color: #30363d;
+            --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
+            --text: #e6edf3; --text2: #8b949e;
+            --blue: #58a6ff; --green: #3fb950; --orange: #f0883e;
+            --purple: #a371f7; --red: #f85149; --border: #30363d;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-        .header {
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        /* Header */
+        .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--blue), var(--green)); border-radius: 6px; }
+        .logo-text { font-size: 1.25rem; font-weight: 600; }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        /* Upload */
+        .upload-area { display: flex; gap: 1rem; align-items: center; }
+        .upload-btn { background: var(--blue); color: white; padding: 0.5rem 1rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; transition: background 0.2s; }
+        .upload-btn:hover { background: #4c8bd5; }
+        .file-input { display: none; }
 
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
-            border-radius: 6px;
-        }
+        /* Layout */
+        .container { display: flex; min-height: calc(100vh - 60px); }
+        .sidebar { width: 260px; background: var(--bg2); border-right: 1px solid var(--border); padding: 1rem; overflow-y: auto; flex-shrink: 0; }
+        .main { flex: 1; padding: 1rem; overflow-y: auto; }
 
-        .logo-text {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
+        /* Filters */
+        .filter-section { margin-bottom: 1rem; }
+        .filter-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--text2); margin-bottom: 0.5rem; letter-spacing: 0.5px; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .filter-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.5rem; background: var(--bg3); border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: background 0.15s; }
+        .filter-item:hover { background: var(--border); }
+        .filter-item input { accent-color: var(--blue); width: 14px; height: 14px; }
+        .filter-item.active { background: var(--border); }
 
-        .upload-area {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
+        /* Empty State */
+        .empty { text-align: center; padding: 4rem 2rem; color: var(--text2); }
+        .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .empty-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text); }
+        .empty-text { font-size: 0.9rem; }
 
-        .file-input-wrapper {
-            position: relative;
-        }
+        /* KPIs */
+        .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+        .kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; position: relative; overflow: hidden; }
+        .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .kpi.r::before { background: var(--green); }
+        .kpi.v::before { background: var(--blue); }
+        .kpi.d::before { background: var(--purple); }
+        .kpi.w::before { background: var(--orange); }
+        .kpi.l::before { background: var(--green); }
+        .kpi-icon { font-size: 1.25rem; margin-bottom: 0.25rem; }
+        .kpi-label { font-size: 0.7rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 1.5rem; font-weight: 700; margin-top: 0.2rem; }
+        .kpi-change { font-size: 0.7rem; margin-top: 0.2rem; }
+        .kpi-change.up { color: var(--green); }
+        .kpi-change.down { color: var(--red); }
 
-        .file-input-wrapper input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
+        /* Insights */
+        .insights { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .insight { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.5rem; background: var(--bg3); border-radius: 4px; margin-bottom: 0.5rem; font-size: 0.85rem; }
+        .insight:last-child { margin-bottom: 0; }
+        .insight strong { color: var(--blue); }
 
-        .upload-btn {
-            background: var(--accent-blue);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        /* Charts */
+        .charts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+        .chart { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+        .chart.full { grid-column: span 2; }
+        .chart-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+        .chart-wrap { height: 220px; position: relative; }
+        .chart-wrap.tall { height: 280px; }
 
-        .upload-btn:hover {
-            background: #4c8bd5;
-        }
+        /* Table */
+        .table-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .table-header { padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .table-title { font-size: 0.9rem; font-weight: 600; }
+        .table-info { font-size: 0.75rem; color: var(--text2); }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+        th { background: var(--bg3); font-weight: 600; color: var(--text2); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; cursor: pointer; user-select: none; transition: background 0.15s; }
+        th:hover { background: var(--border); }
+        th.sorted { color: var(--blue); }
+        th .sort-icon { margin-left: 0.25rem; opacity: 0.5; }
+        th.sorted .sort-icon { opacity: 1; }
+        tr:hover { background: var(--bg3); }
+        tr.dragging { opacity: 0.5; background: var(--bg3); }
+        tr.drag-over { border-top: 2px solid var(--blue); }
 
-        .container {
-            display: flex;
-            min-height: calc(100vh - 60px);
-        }
+        /* Badges */
+        .badge { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 500; }
+        .badge.opp { background: #f0883e33; color: var(--orange); }
+        .badge.quote { background: #fbbf2433; color: #fbbf24; }
+        .badge.negot { background: #a371f733; color: var(--purple); }
+        .badge.contract { background: #3fb95033; color: var(--green); }
+        .badge.onboard { background: #58a6ff33; color: var(--blue); }
+        .badge.live { background: #3fb95033; color: var(--green); }
 
-        .sidebar {
-            width: 280px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-            padding: 1.5rem;
-            overflow-y: auto;
-        }
+        .prob-bar { width: 50px; height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; display: inline-block; vertical-align: middle; }
+        .prob-fill { height: 100%; border-radius: 2px; }
+        .prob-fill.high { background: var(--green); }
+        .prob-fill.med { background: var(--orange); }
+        .prob-fill.low { background: var(--red); }
 
-        .filter-section {
-            margin-bottom: 1.5rem;
-        }
+        /* Toast */
+        .toast { position: fixed; bottom: 1rem; right: 1rem; background: var(--bg3); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; z-index: 1000; animation: slideIn 0.3s ease; }
+        .toast.success { border-color: var(--green); }
+        .toast.error { border-color: var(--red); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        .filter-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .filter-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background: var(--bg-tertiary);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: background 0.2s;
-        }
-
-        .filter-checkbox:hover {
-            background: var(--border-color);
-        }
-
-        .filter-checkbox input {
-            accent-color: var(--accent-blue);
-            width: 16px;
-            height: 16px;
-        }
-
-        .filter-checkbox .emoji {
-            margin-right: 0.25rem;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 1.5rem;
-            overflow-y: auto;
-        }
-
-        .kpis-row {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .kpi-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-        }
-
-        .kpi-card.revenue::before { background: var(--accent-green); }
-        .kpi-card.velocity::before { background: var(--accent-blue); }
-        .kpi-card.deal::before { background: var(--accent-purple); }
-        .kpi-card.winrate::before { background: var(--accent-orange); }
-        .kpi-card.live::before { background: var(--accent-green); }
-
-        .kpi-emoji {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .kpi-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .kpi-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-top: 0.25rem;
-        }
-
-        .kpi-change {
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-        }
-
-        .kpi-change.positive { color: var(--accent-green); }
-        .kpi-change.negative { color: var(--accent-red); }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .chart-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-        }
-
-        .chart-card.full-width {
-            grid-column: span 2;
-        }
-
-        .chart-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 250px;
-        }
-
-        .chart-container.tall {
-            height: 300px;
-        }
-
-        .insights-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .insight-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            background: var(--bg-tertiary);
-        }
-
-        .insight-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .insight-icon {
-            font-size: 1.25rem;
-        }
-
-        .insight-text {
-            font-size: 0.875rem;
-            line-height: 1.4;
-        }
-
-        .insight-text strong {
-            color: var(--accent-blue);
-        }
-
-        .table-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-title {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.875rem;
-        }
-
-        th {
-            background: var(--bg-tertiary);
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-        }
-
-        tr:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .status-quoting { background: #fbbf2433; color: #fbbf24; }
-        .status-negotiating { background: #a371f733; color: #a371f7; }
-        .status-contract { background: #3fb95033; color: #3fb950; }
-        .status-onboarding { background: #58a6ff33; color: #58a6ff; }
-        .status-live { background: #3fb95033; color: #3fb950; }
-        .status-opportunity { background: #f0883e33; color: #f0883e; }
-
-        .category-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .probability-bar {
-            width: 60px;
-            height: 6px;
-            background: var(--bg-tertiary);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .probability-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.3s;
-        }
-
-        .probability-fill.low { background: var(--accent-red); }
-        .probability-fill.medium { background: var(--accent-orange); }
-        .probability-fill.high { background: var(--accent-green); }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
-        }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .empty-text {
-            font-size: 0.875rem;
-        }
-
-        @media (max-width: 1200px) {
-            .kpis-row {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
+        /* Responsive */
+        @media (max-width: 1200px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .kpis-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
+            .sidebar { display: none; }
+            .kpis { grid-template-columns: repeat(2, 1fr); }
+            .charts { grid-template-columns: 1fr; }
+            .chart.full { grid-column: span 1; }
         }
     </style>
 </head>
@@ -427,12 +135,8 @@
             <span class="logo-text">Huboo Dashboard</span>
         </div>
         <div class="upload-area">
-            <div class="file-input-wrapper">
-                <button class="upload-btn">
-                    <span>📁</span> Upload Excel
-                </button>
-                <input type="file" id="fileInput" accept=".xlsx,.xls">
-            </div>
+            <button class="upload-btn" id="uploadBtn"><span>📁</span> Upload Excel</button>
+            <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls">
         </div>
     </header>
 
@@ -442,91 +146,54 @@
                 <div class="filter-title">Business Development Manager</div>
                 <div class="filter-group" id="bdmFilters"></div>
             </div>
-
             <div class="filter-section">
                 <div class="filter-title">Category</div>
-                <div class="filter-group" id="categoryFilters"></div>
+                <div class="filter-group" id="catFilters"></div>
             </div>
-
             <div class="filter-section">
                 <div class="filter-title">Pipeline Stage</div>
                 <div class="filter-group" id="stateFilters"></div>
             </div>
-
             <div class="filter-section">
                 <div class="filter-title">Week Commencing</div>
                 <div class="filter-group" id="weekFilters"></div>
             </div>
         </aside>
 
-        <main class="main-content" id="mainContent">
-            <div class="empty-state" id="emptyState">
+        <main class="main" id="main">
+            <div class="empty" id="emptyState">
                 <div class="empty-icon">📊</div>
                 <div class="empty-title">No Data Loaded</div>
                 <div class="empty-text">Upload an Excel file to view the dashboard</div>
             </div>
 
-            <div id="dashboardContent" style="display: none;">
-                <div class="kpis-row" id="kpisRow"></div>
-
-                <div class="insights-section" id="insightsSection">
-                    <div class="filter-title">Key Insights</div>
-                    <div id="insightsList"></div>
+            <div id="dashboard" style="display: none;">
+                <div class="kpis" id="kpis"></div>
+                <div class="insights" id="insights"></div>
+                <div class="charts">
+                    <div class="chart full"><div class="chart-title">📊 Pipeline Funnel</div><div class="chart-wrap tall"><canvas id="funnelChart"></canvas></div></div>
+                    <div class="chart"><div class="chart-title">💰 Revenue by BDM</div><div class="chart-wrap"><canvas id="revenueChart"></canvas></div></div>
+                    <div class="chart"><div class="chart-title">📦 Categories</div><div class="chart-wrap"><canvas id="catChart"></canvas></div></div>
+                    <div class="chart"><div class="chart-title">🌍 Origin Countries</div><div class="chart-wrap"><canvas id="originChart"></canvas></div></div>
+                    <div class="chart"><div class="chart-title">📈 Revenue Trend</div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
                 </div>
-
-                <div class="charts-grid">
-                    <div class="chart-card full-width">
-                        <div class="chart-title">📊 Pipeline Funnel</div>
-                        <div class="chart-container tall">
-                            <canvas id="funnelChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="chart-card">
-                        <div class="chart-title">💰 Revenue by BDM</div>
-                        <div class="chart-container">
-                            <canvas id="revenueChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="chart-card">
-                        <div class="chart-title">📦 Categories Distribution</div>
-                        <div class="chart-container">
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="chart-card">
-                        <div class="chart-title">🌍 Origin Countries</div>
-                        <div class="chart-container">
-                            <canvas id="originChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="chart-card">
-                        <div class="chart-title">📈 Revenue Trend</div>
-                        <div class="chart-container">
-                            <canvas id="trendChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="table-card">
                     <div class="table-header">
                         <div class="table-title">📋 Accounts Pipeline</div>
+                        <div class="table-info" id="tableInfo">Click headers to sort • Drag rows to reorder</div>
                     </div>
-                    <div class="table-wrapper">
-                        <table id="accountsTable">
+                    <div class="table-wrap">
+                        <table id="dataTable">
                             <thead>
                                 <tr>
-                                    <th>Brand</th>
-                                    <th>BDM</th>
-                                    <th>Category</th>
-                                    <th>Stage</th>
-                                    <th>Monthly Orders</th>
-                                    <th>Revenue</th>
-                                    <th>Probability</th>
-                                    <th>Weighted</th>
+                                    <th data-sort="brand">Brand <span class="sort-icon">↕</span></th>
+                                    <th data-sort="bdm">BDM <span class="sort-icon">↕</span></th>
+                                    <th data-sort="category">Category <span class="sort-icon">↕</span></th>
+                                    <th data-sort="stage">Stage <span class="sort-icon">↕</span></th>
+                                    <th data-sort="orders">Orders <span class="sort-icon">↕</span></th>
+                                    <th data-sort="revenue">Revenue <span class="sort-icon">↕</span></th>
+                                    <th data-sort="probability">Prob <span class="sort-icon">↕</span></th>
+                                    <th data-sort="weighted">Weighted <span class="sort-icon">↕</span></th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody"></tbody>
@@ -538,608 +205,454 @@
     </div>
 
     <script>
-        // Category emoji mapping
-        const categoryEmojis = {
-            'Fashion/Apparel': '👕',
-            'Cosmetics': '💄',
-            'Supplements': '💊',
-            'Electronics': '🔌',
-            'Home & Garden': '🏡',
-            'Pet Supplies': '🐾',
-            'Food & Beverage': '🍫'
+        // Config
+        const CAT_EMOJI = {
+            'Fashion/Apparel': '👕', 'Cosmetics': '💄', 'Supplements': '💊',
+            'Electronics': '🔌', 'Home & Garden': '🏡', 'Pet Supplies': '🐾', 'Food & Beverage': '🍫'
         };
 
-        // State badge mapping
-        const stateConfig = {
-            'Opportunity': { class: 'status-opportunity', emoji: '🟡' },
-            'Quoting': { class: 'status-quoting', emoji: '🔵' },
-            'Negotiating': { class: 'status-negotiating', emoji: '🟣' },
-            'Contract Signed': { class: 'status-contract', emoji: '🟢' },
-            'Onboarding': { class: 'status-onboarding', emoji: '🔷' },
-            'Live': { class: 'status-live', emoji: '✅' }
+        const STATE_BADGE = {
+            'Opportunity': { cls: 'opp', emoji: '🟡' },
+            'Quoting': { cls: 'quote', emoji: '🔵' },
+            'Negotiating': { cls: 'negot', emoji: '🟣' },
+            'Contract Signed': { cls: 'contract', emoji: '🟢' },
+            'Onboarding': { cls: 'onboard', emoji: '🔷' },
+            'Live': { cls: 'live', emoji: '✅' }
         };
 
-        // BDM colors
-        const bdmColors = {
-            'James Smith': '#58a6ff',
-            'Chloe Bennett': '#a371f7',
-            'Liam Patel': '#3fb950',
-            'Sarah Jenkins': '#f0883e'
+        const BDM_COLORS = {
+            'James Smith': '#58a6ff', 'Chloe Bennett': '#a371f7',
+            'Liam Patel': '#3fb950', 'Sarah Jenkins': '#f0883e'
         };
 
-        // Global state
+        // State
         let allData = [];
         let filteredData = [];
         let charts = {};
+        let filters = { bdm: [], cat: [], state: [], week: [] };
+        let sortCol = 'probability';
+        let sortDir = 'desc';
+        let draggedRow = null;
 
-        // Filters state
-        let filters = {
-            bdm: [],
-            category: [],
-            state: [],
-            week: []
+        // Utils
+        const fmt = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : Math.round(n).toLocaleString();
+
+        const showToast = (msg, type = 'success') => {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
         };
 
-        // File input handler
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+        // File handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
 
-                    // Process all sheets
-                    let combinedData = [];
-                    workbook.SheetNames.forEach(sheetName => {
-                        if (sheetName.startsWith('BDM_')) {
-                            const worksheet = workbook.Sheets[sheetName];
-                            const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                            combinedData = combinedData.concat(jsonData);
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            showToast('Loading file...', 'success');
+
+            const reader = new FileReader();
+            reader.onload = evt => {
+                try {
+                    const wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
+                    let data = [];
+
+                    wb.SheetNames.forEach(name => {
+                        if (name.startsWith('BDM_')) {
+                            const sheet = wb.Sheets[name];
+                            data = data.concat(XLSX.utils.sheet_to_json(sheet));
                         }
                     });
 
-                    allData = combinedData;
-                    initializeDashboard();
-                };
-                reader.readAsArrayBuffer(file);
-            }
+                    if (data.length === 0) {
+                        showToast('No data found. Ensure sheets start with "BDM_"', 'error');
+                        return;
+                    }
+
+                    allData = data;
+                    initDashboard();
+                    showToast(`Loaded ${data.length} records successfully`, 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('Error reading file: ' + err.message, 'error');
+                }
+            };
+            reader.onerror = () => showToast('Failed to read file', 'error');
+            reader.readAsArrayBuffer(file);
         });
 
-        function initializeDashboard() {
+        // Initialize
+        function initDashboard() {
             document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('dashboardContent').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'block';
 
-            // Initialize filters
-            initializeFilters();
-
-            // Initial render
+            initFilters();
             applyFilters();
         }
 
-        function initializeFilters() {
+        function initFilters() {
             const bdms = [...new Set(allData.map(d => d.BDM_Name))];
-            const categories = [...new Set(allData.map(d => d.Category))];
+            const cats = [...new Set(allData.map(d => d.Category))];
             const states = [...new Set(allData.map(d => d.Current_State))];
             const weeks = [...new Set(allData.map(d => d.Week_Commencing))].sort();
 
-            filters.bdm = bdms;
-            filters.category = categories;
-            filters.state = states;
-            filters.week = weeks;
+            filters = { bdm: bdms, cat: cats, state: states, week: weeks };
 
-            // Render filter checkboxes
-            renderFilterGroup('bdmFilters', bdms, 'bdm', bdms);
-            renderFilterGroup('categoryFilters', categories, 'category', categories, true);
-            renderFilterGroup('stateFilters', states, 'state', states);
-            renderFilterGroup('weekFilters', weeks, 'week', weeks);
+            renderFilters('bdmFilters', bdms, 'bdm');
+            renderFilters('catFilters', cats, 'cat', true);
+            renderFilters('stateFilters', states, 'state');
+            renderFilters('weekFilters', weeks, 'week');
         }
 
-        function renderFilterGroup(containerId, items, filterKey, allItems, useEmoji = false) {
+        function renderFilters(containerId, items, key, useEmoji = false) {
             const container = document.getElementById(containerId);
             container.innerHTML = items.map(item => {
-                const id = `${filterKey}_${item.replace(/\s+/g, '_')}`;
-                const emoji = useEmoji ? (categoryEmojis[item] || '📦') + ' ' : '';
+                const emoji = useEmoji ? (CAT_EMOJI[item] || '📦') + ' ' : '';
                 return `
-                    <label class="filter-checkbox">
-                        <input type="checkbox"
-                               id="${id}"
-                               value="${item}"
-                               checked
-                               onchange="toggleFilter('${filterKey}', '${item}', this.checked)">
+                    <label class="filter-item">
+                        <input type="checkbox" checked data-filter="${key}" data-value="${item}">
                         <span>${emoji}${item}</span>
                     </label>
                 `;
             }).join('');
-        }
 
-        function toggleFilter(filterKey, value, checked) {
-            if (checked) {
-                if (!filters[filterKey].includes(value)) {
-                    filters[filterKey].push(value);
-                }
-            } else {
-                filters[filterKey] = filters[filterKey].filter(v => v !== value);
-            }
-            applyFilters();
+            container.querySelectorAll('input').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const val = cb.dataset.value;
+                    const arr = filters[key];
+                    if (cb.checked) {
+                        if (!arr.includes(val)) arr.push(val);
+                    } else {
+                        filters[key] = arr.filter(v => v !== val);
+                    }
+                    applyFilters();
+                });
+            });
         }
 
         function applyFilters() {
-            filteredData = allData.filter(d => {
-                return filters.bdm.includes(d.BDM_Name) &&
-                       filters.category.includes(d.Category) &&
-                       filters.state.includes(d.Current_State) &&
-                       filters.week.includes(d.Week_Commencing);
-            });
-
-            renderDashboard();
+            filteredData = allData.filter(d =>
+                filters.bdm.includes(d.BDM_Name) &&
+                filters.cat.includes(d.Category) &&
+                filters.state.includes(d.Current_State) &&
+                filters.week.includes(d.Week_Commencing)
+            );
+            renderAll();
         }
 
-        function renderDashboard() {
+        function renderAll() {
             renderKPIs();
             renderInsights();
             renderCharts();
             renderTable();
         }
 
+        // KPIs
         function renderKPIs() {
-            const kpis = calculateKPIs();
-            const container = document.getElementById('kpisRow');
-
-            container.innerHTML = `
-                <div class="kpi-card revenue">
-                    <div class="kpi-emoji">💷</div>
-                    <div class="kpi-label">Weighted Revenue</div>
-                    <div class="kpi-value">£${formatNumber(kpis.weightedRevenue)}</div>
-                    <div class="kpi-change ${kpis.revenueChange >= 0 ? 'positive' : 'negative'}">
-                        ${kpis.revenueChange >= 0 ? '↑' : '↓'} ${Math.abs(kpis.revenueChange).toFixed(1)}% vs last week
-                    </div>
-                </div>
-                <div class="kpi-card velocity">
-                    <div class="kpi-emoji">🎯</div>
-                    <div class="kpi-label">Pipeline Velocity</div>
-                    <div class="kpi-value">${kpis.velocity.toFixed(1)}%</div>
-                    <div class="kpi-change positive">Accounts advancing</div>
-                </div>
-                <div class="kpi-card deal">
-                    <div class="kpi-emoji">📈</div>
-                    <div class="kpi-label">Avg Deal Size</div>
-                    <div class="kpi-value">£${formatNumber(kpis.avgDealSize)}</div>
-                    <div class="kpi-change">Negotiating+</div>
-                </div>
-                <div class="kpi-card winrate">
-                    <div class="kpi-emoji">✅</div>
-                    <div class="kpi-label">Win Rate (90%+)</div>
-                    <div class="kpi-value">${kpis.winRate.toFixed(1)}%</div>
-                    <div class="kpi-change">${kpis.committedAccounts} committed accounts</div>
-                </div>
-                <div class="kpi-card live">
-                    <div class="kpi-emoji">🔄</div>
-                    <div class="kpi-label">Live Accounts</div>
-                    <div class="kpi-value">${kpis.liveAccounts}</div>
-                    <div class="kpi-change">${kpis.totalAccounts} total</div>
-                </div>
+            const k = calcKPIs();
+            document.getElementById('kpis').innerHTML = `
+                <div class="kpi r"><div class="kpi-icon">💷</div><div class="kpi-label">Weighted Revenue</div><div class="kpi-value">£${fmt(k.weightedRev)}</div><div class="kpi-change ${k.revChange>=0?'up':'down'}">${k.revChange>=0?'↑':'↓'} ${Math.abs(k.revChange).toFixed(1)}% vs last week</div></div>
+                <div class="kpi v"><div class="kpi-icon">🎯</div><div class="kpi-label">Pipeline Velocity</div><div class="kpi-value">${k.velocity.toFixed(1)}%</div><div class="kpi-change">Accounts advancing</div></div>
+                <div class="kpi d"><div class="kpi-icon">📈</div><div class="kpi-label">Avg Deal Size</div><div class="kpi-value">£${fmt(k.avgDeal)}</div><div class="kpi-change">Negotiating+</div></div>
+                <div class="kpi w"><div class="kpi-icon">✅</div><div class="kpi-label">Win Rate (90%+)</div><div class="kpi-value">${k.winRate.toFixed(1)}%</div><div class="kpi-change">${k.committed} committed</div></div>
+                <div class="kpi l"><div class="kpi-icon">🔄</div><div class="kpi-label">Live Accounts</div><div class="kpi-value">${k.live}</div><div class="kpi-change">${k.total} total</div></div>
             `;
         }
 
-        function calculateKPIs() {
+        function calcKPIs() {
             const total = filteredData.length;
-            const weightedRevenue = filteredData.reduce((sum, d) => {
-                return sum + (d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100));
-            }, 0);
+            const weightedRev = filteredData.reduce((s, d) => s + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100), 0);
 
-            const advancedStates = ['Negotiating', 'Contract Signed', 'Onboarding', 'Live'];
-            const advancedCount = filteredData.filter(d => advancedStates.includes(d.Current_State)).length;
-            const velocity = total > 0 ? (advancedCount / total) * 100 : 0;
+            const advanced = ['Negotiating', 'Contract Signed', 'Onboarding', 'Live'];
+            const advCount = filteredData.filter(d => advanced.includes(d.Current_State)).length;
+            const velocity = total > 0 ? (advCount / total) * 100 : 0;
 
-            const negotiatingPlus = filteredData.filter(d =>
-                ['Negotiating', 'Contract Signed', 'Onboarding', 'Live'].includes(d.Current_State)
-            );
-            const avgDealSize = negotiatingPlus.length > 0
-                ? negotiatingPlus.reduce((sum, d) => sum + d.Forecasted_Revenue_GBP, 0) / negotiatingPlus.length
-                : 0;
+            const negPlus = filteredData.filter(d => advanced.includes(d.Current_State));
+            const avgDeal = negPlus.length > 0 ? negPlus.reduce((s, d) => s + d.Forecasted_Revenue_GBP, 0) / negPlus.length : 0;
 
-            const committedAccounts = filteredData.filter(d => d.Probability_Percentage >= 90);
-            const committedRevenue = committedAccounts.reduce((sum, d) => sum + d.Forecasted_Revenue_GBP, 0);
-            const totalRevenue = filteredData.reduce((sum, d) => sum + d.Forecasted_Revenue_GBP, 0);
-            const winRate = totalRevenue > 0 ? (committedRevenue / totalRevenue) * 100 : 0;
+            const committed = filteredData.filter(d => d.Probability_Percentage >= 90);
+            const committedRev = committed.reduce((s, d) => s + d.Forecasted_Revenue_GBP, 0);
+            const totalRev = filteredData.reduce((s, d) => s + d.Forecasted_Revenue_GBP, 0);
+            const winRate = totalRev > 0 ? (committedRev / totalRev) * 100 : 0;
 
-            const liveAccounts = filteredData.filter(d => d.Current_State === 'Live').length;
+            const live = filteredData.filter(d => d.Current_State === 'Live').length;
 
-            // Calculate week over week change
             const weeks = [...new Set(filteredData.map(d => d.Week_Commencing))].sort();
-            let revenueChange = 0;
+            let revChange = 0;
             if (weeks.length >= 2) {
-                const lastWeek = weeks[weeks.length - 1];
-                const prevWeek = weeks[weeks.length - 2];
-                const lastWeekRevenue = filteredData
-                    .filter(d => d.Week_Commencing === lastWeek)
-                    .reduce((sum, d) => sum + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100), 0);
-                const prevWeekRevenue = filteredData
-                    .filter(d => d.Week_Commencing === prevWeek)
-                    .reduce((sum, d) => sum + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100), 0);
-                revenueChange = prevWeekRevenue > 0 ? ((lastWeekRevenue - prevWeekRevenue) / prevWeekRevenue) * 100 : 0;
+                const lastW = weeks[weeks.length - 1];
+                const prevW = weeks[weeks.length - 2];
+                const lastRev = filteredData.filter(d => d.Week_Commencing === lastW).reduce((s, d) => s + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100), 0);
+                const prevRev = filteredData.filter(d => d.Week_Commencing === prevW).reduce((s, d) => s + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100), 0);
+                revChange = prevRev > 0 ? ((lastRev - prevRev) / prevRev) * 100 : 0;
             }
 
-            return {
-                weightedRevenue,
-                velocity,
-                avgDealSize,
-                winRate,
-                liveAccounts,
-                totalAccounts: total,
-                committedAccounts: committedAccounts.length,
-                revenueChange
-            };
+            return { weightedRev, velocity, avgDeal, winRate, live, total, committed: committed.length, revChange };
         }
 
+        // Insights
         function renderInsights() {
-            const insights = generateInsights();
-            const container = document.getElementById('insightsList');
-
-            container.innerHTML = insights.map(insight => `
-                <div class="insight-item">
-                    <span class="insight-icon">${insight.icon}</span>
-                    <span class="insight-text">${insight.text}</span>
-                </div>
-            `).join('');
-        }
-
-        function generateInsights() {
             const insights = [];
 
-            // Top performer
-            const bdmPerformance = {};
+            // Top BDM
+            const bdmPerf = {};
             filteredData.forEach(d => {
-                if (!bdmPerformance[d.BDM_Name]) {
-                    bdmPerformance[d.BDM_Name] = 0;
-                }
-                bdmPerformance[d.BDM_Name] += d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100);
+                bdmPerf[d.BDM_Name] = (bdmPerf[d.BDM_Name] || 0) + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100);
             });
+            const topBDM = Object.entries(bdmPerf).sort((a, b) => b[1] - a[1])[0];
+            if (topBDM) insights.push({ icon: '🏆', text: `<strong>${topBDM[0]}</strong> leads with £${fmt(topBDM[1])} weighted revenue` });
 
-            const topBDM = Object.entries(bdmPerformance).sort((a, b) => b[1] - a[1])[0];
-            if (topBDM) {
-                insights.push({
-                    icon: '🏆',
-                    text: `<strong>${topBDM[0]}</strong> is leading with £${formatNumber(topBDM[1])} weighted revenue`
-                });
-            }
+            // High value
+            const highVal = filteredData.filter(d => d.Estimated_Monthly_Orders >= 5000 || d.Forecasted_Revenue_GBP >= 15000);
+            if (highVal.length) insights.push({ icon: '💎', text: `<strong>${highVal.length}</strong> high-value accounts (£15k+ or 5000+ orders)` });
 
-            // High value opportunities
-            const highValue = filteredData.filter(d =>
-                d.Estimated_Monthly_Orders >= 5000 || d.Forecasted_Revenue_GBP >= 15000
-            );
-            if (highValue.length > 0) {
-                insights.push({
-                    icon: '💎',
-                    text: `<strong>${highValue.length}</strong> high-value accounts identified (£15k+ revenue or 5000+ orders)`
-                });
-            }
-
-            // At risk accounts
-            const atRisk = filteredData.filter(d =>
-                ['Quoting', 'Opportunity'].includes(d.Current_State) && d.Probability_Percentage < 50
-            );
-            if (atRisk.length > 0) {
-                insights.push({
-                    icon: '⚠️',
-                    text: `<strong>${atRisk.length}</strong> accounts need attention (early stage, low probability)`
-                });
-            }
+            // At risk
+            const atRisk = filteredData.filter(d => ['Quoting', 'Opportunity'].includes(d.Current_State) && d.Probability_Percentage < 50);
+            if (atRisk.length) insights.push({ icon: '⚠️', text: `<strong>${atRisk.length}</strong> accounts need attention (early stage, low prob)` });
 
             // Ready to close
-            const readyToClose = filteredData.filter(d =>
-                ['Contract Signed', 'Onboarding'].includes(d.Current_State)
-            );
-            if (readyToClose.length > 0) {
-                insights.push({
-                    icon: '🎯',
-                    text: `<strong>${readyToClose.length}</strong> accounts ready to go live soon`
-                });
-            }
+            const ready = filteredData.filter(d => ['Contract Signed', 'Onboarding'].includes(d.Current_State));
+            if (ready.length) insights.push({ icon: '🎯', text: `<strong>${ready.length}</strong> accounts ready to go live` });
 
-            // Category insights
-            const categories = {};
-            filteredData.forEach(d => {
-                if (!categories[d.Category]) categories[d.Category] = 0;
-                categories[d.Category]++;
-            });
-            const topCategory = Object.entries(categories).sort((a, b) => b[1] - a[1])[0];
-            if (topCategory) {
-                insights.push({
-                    icon: categoryEmojis[topCategory[0]] || '📦',
-                    text: `<strong>${topCategory[0]}</strong> is the most active category with ${topCategory[1]} accounts`
-                });
-            }
+            // Top category
+            const cats = {};
+            filteredData.forEach(d => cats[d.Category] = (cats[d.Category] || 0) + 1);
+            const topCat = Object.entries(cats).sort((a, b) => b[1] - a[1])[0];
+            if (topCat) insights.push({ icon: CAT_EMOJI[topCat[0]] || '📦', text: `<strong>${topCat[0]}</strong> is most active (${topCat[1]} accounts)` });
 
-            return insights;
+            document.getElementById('insights').innerHTML = `
+                <div class="filter-title">Key Insights</div>
+                ${insights.map(i => `<div class="insight"><span>${i.icon}</span><span>${i.text}</span></div>`).join('')}
+            `;
         }
 
+        // Charts
         function renderCharts() {
-            renderFunnelChart();
-            renderRevenueChart();
-            renderCategoryChart();
-            renderOriginChart();
-            renderTrendChart();
+            renderFunnel();
+            renderRevenue();
+            renderCategory();
+            renderOrigin();
+            renderTrend();
         }
 
-        function renderFunnelChart() {
+        function renderFunnel() {
             const stages = ['Opportunity', 'Quoting', 'Negotiating', 'Contract Signed', 'Onboarding', 'Live'];
-            const stageCounts = stages.map(stage =>
-                filteredData.filter(d => d.Current_State === stage).length
-            );
-            const stageRevenue = stages.map(stage =>
-                filteredData
-                    .filter(d => d.Current_State === stage)
-                    .reduce((sum, d) => sum + d.Forecasted_Revenue_GBP, 0)
-            );
+            const counts = stages.map(s => filteredData.filter(d => d.Current_State === s).length);
+            const revenue = stages.map(s => filteredData.filter(d => d.Current_State === s).reduce((sum, d) => sum + d.Forecasted_Revenue_GBP, 0));
 
             if (charts.funnel) charts.funnel.destroy();
-
-            const ctx = document.getElementById('funnelChart').getContext('2d');
-            charts.funnel = new Chart(ctx, {
+            charts.funnel = new Chart(document.getElementById('funnelChart'), {
                 type: 'bar',
                 data: {
-                    labels: stages.map(s => `${stateConfig[s]?.emoji || '⚪'} ${s}`),
-                    datasets: [{
-                        label: 'Accounts',
-                        data: stageCounts,
-                        backgroundColor: '#58a6ff',
-                        borderRadius: 4
-                    }, {
-                        label: 'Revenue (£)',
-                        data: stageRevenue,
-                        backgroundColor: '#3fb950',
-                        borderRadius: 4
-                    }]
+                    labels: stages.map(s => `${STATE_BADGE[s]?.emoji || '⚪'} ${s}`),
+                    datasets: [
+                        { label: 'Accounts', data: counts, backgroundColor: '#58a6ff', borderRadius: 4 },
+                        { label: 'Revenue (£)', data: revenue, backgroundColor: '#3fb950', borderRadius: 4 }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#e6edf3' }
-                        }
-                    },
+                    plugins: { legend: { labels: { color: '#e6edf3' } } },
                     scales: {
-                        x: {
-                            ticks: { color: '#8b949e' },
-                            grid: { color: '#30363d' }
-                        },
-                        y: {
-                            ticks: { color: '#8b949e' },
-                            grid: { color: '#30363d' }
-                        }
+                        x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
+                        y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } }
                     }
                 }
             });
         }
 
-        function renderRevenueChart() {
-            const bdmRevenue = {};
-            filteredData.forEach(d => {
-                if (!bdmRevenue[d.BDM_Name]) bdmRevenue[d.BDM_Name] = 0;
-                bdmRevenue[d.BDM_Name] += d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100);
-            });
+        function renderRevenue() {
+            const bdmRev = {};
+            filteredData.forEach(d => bdmRev[d.BDM_Name] = (bdmRev[d.BDM_Name] || 0) + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100));
 
             if (charts.revenue) charts.revenue.destroy();
-
-            const ctx = document.getElementById('revenueChart').getContext('2d');
-            charts.revenue = new Chart(ctx, {
+            charts.revenue = new Chart(document.getElementById('revenueChart'), {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(bdmRevenue),
-                    datasets: [{
-                        data: Object.values(bdmRevenue),
-                        backgroundColor: Object.keys(bdmRevenue).map(bdm => bdmColors[bdm] || '#8b949e'),
-                        borderWidth: 0
-                    }]
+                    labels: Object.keys(bdmRev),
+                    datasets: [{ data: Object.values(bdmRev), backgroundColor: Object.keys(bdmRev).map(b => BDM_COLORS[b] || '#8b949e'), borderWidth: 0 }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#e6edf3', padding: 15 }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `£${formatNumber(context.raw)}`;
-                                }
-                            }
-                        }
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { color: '#e6edf3', padding: 10 } },
+                        tooltip: { callbacks: { label: ctx => `£${fmt(ctx.raw)}` } } }
                 }
             });
         }
 
-        function renderCategoryChart() {
-            const categories = {};
-            filteredData.forEach(d => {
-                if (!categories[d.Category]) categories[d.Category] = 0;
-                categories[d.Category] += d.Forecasted_Revenue_GBP;
-            });
+        function renderCategory() {
+            const cats = {};
+            filteredData.forEach(d => cats[d.Category] = (cats[d.Category] || 0) + d.Forecasted_Revenue_GBP);
 
-            if (charts.category) charts.category.destroy();
-
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            charts.category = new Chart(ctx, {
+            if (charts.cat) charts.cat.destroy();
+            charts.cat = new Chart(document.getElementById('catChart'), {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(categories).map(c => `${categoryEmojis[c] || '📦'} ${c}`),
-                    datasets: [{
-                        label: 'Revenue (£)',
-                        data: Object.values(categories),
-                        backgroundColor: [
-                            '#58a6ff', '#a371f7', '#3fb950', '#f0883e', '#f85149', '#8b949e'
-                        ],
-                        borderRadius: 4
-                    }]
+                    labels: Object.keys(cats).map(c => `${CAT_EMOJI[c] || '📦'} ${c}`),
+                    datasets: [{ label: 'Revenue (£)', data: Object.values(cats), backgroundColor: ['#58a6ff', '#a371f7', '#3fb950', '#f0883e', '#f85149', '#8b949e'], borderRadius: 4 }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     indexAxis: 'y',
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        x: {
-                            ticks: { color: '#8b949e' },
-                            grid: { color: '#30363d' }
-                        },
-                        y: {
-                            ticks: { color: '#8b949e' },
-                            grid: { display: false }
-                        }
+                        x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
+                        y: { ticks: { color: '#8b949e' }, grid: { display: false } }
                     }
                 }
             });
         }
 
-        function renderOriginChart() {
+        function renderOrigin() {
             const origins = {};
-            filteredData.forEach(d => {
-                if (!origins[d.Origin_Country]) origins[d.Origin_Country] = 0;
-                origins[d.Origin_Country]++;
-            });
+            filteredData.forEach(d => origins[d.Origin_Country] = (origins[d.Origin_Country] || 0) + 1);
 
             if (charts.origin) charts.origin.destroy();
-
-            const ctx = document.getElementById('originChart').getContext('2d');
-            charts.origin = new Chart(ctx, {
+            charts.origin = new Chart(document.getElementById('originChart'), {
                 type: 'pie',
                 data: {
                     labels: Object.keys(origins),
-                    datasets: [{
-                        data: Object.values(origins),
-                        backgroundColor: ['#58a6ff', '#3fb950', '#a371f7', '#f0883e', '#f85149'],
-                        borderWidth: 0
-                    }]
+                    datasets: [{ data: Object.values(origins), backgroundColor: ['#58a6ff', '#3fb950', '#a371f7', '#f0883e', '#f85149'], borderWidth: 0 }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#e6edf3', padding: 10 }
-                        }
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { color: '#e6edf3', padding: 8 } } }
                 }
             });
         }
 
-        function renderTrendChart() {
+        function renderTrend() {
             const weeks = [...new Set(filteredData.map(d => d.Week_Commencing))].sort();
             const bdms = [...new Set(filteredData.map(d => d.BDM_Name))];
 
-            const datasets = bdms.map(bdm => {
-                const data = weeks.map(week => {
-                    return filteredData
-                        .filter(d => d.BDM_Name === bdm && d.Week_Commencing === week)
-                        .reduce((sum, d) => sum + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100), 0);
-                });
-                return {
-                    label: bdm,
-                    data: data,
-                    borderColor: bdmColors[bdm] || '#8b949e',
-                    backgroundColor: bdmColors[bdm] || '#8b949e',
-                    fill: false,
-                    tension: 0.4
-                };
-            });
+            const datasets = bdms.map(bdm => ({
+                label: bdm,
+                data: weeks.map(w => filteredData.filter(d => d.BDM_Name === bdm && d.Week_Commencing === w).reduce((s, d) => s + d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100), 0)),
+                borderColor: BDM_COLORS[bdm] || '#8b949e',
+                backgroundColor: BDM_COLORS[bdm] || '#8b949e',
+                fill: false,
+                tension: 0.4
+            }));
 
             if (charts.trend) charts.trend.destroy();
-
-            const ctx = document.getElementById('trendChart').getContext('2d');
-            charts.trend = new Chart(ctx, {
+            charts.trend = new Chart(document.getElementById('trendChart'), {
                 type: 'line',
                 data: {
-                    labels: weeks.map(w => {
-                        const date = new Date(w);
-                        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-                    }),
-                    datasets: datasets
+                    labels: weeks.map(w => new Date(w).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })),
+                    datasets
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#e6edf3', padding: 15 }
-                        }
-                    },
+                    plugins: { legend: { position: 'bottom', labels: { color: '#e6edf3', padding: 10 } } },
                     scales: {
-                        x: {
-                            ticks: { color: '#8b949e' },
-                            grid: { color: '#30363d' }
-                        },
-                        y: {
-                            ticks: {
-                                color: '#8b949e',
-                                callback: function(value) {
-                                    return '£' + formatNumber(value);
-                                }
-                            },
-                            grid: { color: '#30363d' }
-                        }
+                        x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
+                        y: { ticks: { color: '#8b949e', callback: v => '£' + fmt(v) }, grid: { color: '#30363d' } }
                     }
                 }
             });
         }
 
+        // Table with sorting and drag
         function renderTable() {
-            const tbody = document.getElementById('tableBody');
+            const sorted = [...filteredData].sort((a, b) => {
+                const getVal = (row, col) => {
+                    switch(col) {
+                        case 'brand': return row.Ecommerce_Brand_Name;
+                        case 'bdm': return row.BDM_Name;
+                        case 'category': return row.Category;
+                        case 'stage': return row.Current_State;
+                        case 'orders': return row.Estimated_Monthly_Orders;
+                        case 'revenue': return row.Forecasted_Revenue_GBP;
+                        case 'probability': return row.Probability_Percentage;
+                        case 'weighted': return row.Forecasted_Revenue_GBP * (row.Probability_Percentage / 100);
+                        default: return '';
+                    }
+                };
 
-            // Sort by probability descending and revenue
-            const sortedData = [...filteredData].sort((a, b) => {
-                if (b.Probability_Percentage !== a.Probability_Percentage) {
-                    return b.Probability_Percentage - a.Probability_Percentage;
+                const aVal = getVal(a, sortCol);
+                const bVal = getVal(b, sortCol);
+
+                if (typeof aVal === 'number' && typeof bVal === 'number') {
+                    return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
                 }
-                return b.Forecasted_Revenue_GBP - a.Forecasted_Revenue_GBP;
+                const cmp = String(aVal).localeCompare(String(bVal));
+                return sortDir === 'asc' ? cmp : -cmp;
             });
 
-            tbody.innerHTML = sortedData.map(d => {
-                const state = stateConfig[d.Current_State] || { class: '', emoji: '⚪' };
-                const catEmoji = categoryEmojis[d.Category] || '📦';
-                const probClass = d.Probability_Percentage >= 75 ? 'high' :
-                                  d.Probability_Percentage >= 50 ? 'medium' : 'low';
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = sorted.map((d, i) => {
+                const st = STATE_BADGE[d.Current_State] || { cls: '', emoji: '⚪' };
+                const catEmoji = CAT_EMOJI[d.Category] || '📦';
+                const probCls = d.Probability_Percentage >= 75 ? 'high' : d.Probability_Percentage >= 50 ? 'med' : 'low';
                 const weighted = d.Forecasted_Revenue_GBP * (d.Probability_Percentage / 100);
 
                 return `
-                    <tr>
+                    <tr draggable="true" data-idx="${i}">
                         <td><strong>${d.Ecommerce_Brand_Name}</strong></td>
                         <td>${d.BDM_Name}</td>
-                        <td><span class="category-badge">${catEmoji} ${d.Category}</span></td>
-                        <td><span class="status-badge ${state.class}">${state.emoji} ${d.Current_State}</span></td>
-                        <td>${formatNumber(d.Estimated_Monthly_Orders)}</td>
-                        <td>£${formatNumber(d.Forecasted_Revenue_GBP)}</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <span>${d.Probability_Percentage}%</span>
-                                <div class="probability-bar">
-                                    <div class="probability-fill ${probClass}" style="width: ${d.Probability_Percentage}%"></div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>£${formatNumber(weighted)}</td>
+                        <td>${catEmoji} ${d.Category}</td>
+                        <td><span class="badge ${st.cls}">${st.emoji} ${d.Current_State}</span></td>
+                        <td>${fmt(d.Estimated_Monthly_Orders)}</td>
+                        <td>£${fmt(d.Forecasted_Revenue_GBP)}</td>
+                        <td>${d.Probability_Percentage}% <div class="prob-bar"><div class="prob-fill ${probCls}" style="width:${d.Probability_Percentage}%"></div></div></td>
+                        <td>£${fmt(weighted)}</td>
                     </tr>
                 `;
             }).join('');
+
+            // Drag & drop
+            tbody.querySelectorAll('tr').forEach(row => {
+                row.addEventListener('dragstart', e => {
+                    draggedRow = row;
+                    row.classList.add('dragging');
+                });
+                row.addEventListener('dragend', () => {
+                    row.classList.remove('dragging');
+                    document.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+                });
+                row.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    row.classList.add('drag-over');
+                });
+                row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+                row.addEventListener('drop', e => {
+                    e.preventDefault();
+                    row.classList.remove('drag-over');
+                    if (draggedRow && draggedRow !== row) {
+                        tbody.insertBefore(draggedRow, row);
+                        showToast('Row order updated', 'success');
+                    }
+                });
+            });
         }
 
-        function formatNumber(num) {
-            if (num >= 1000000) {
-                return (num / 1000000).toFixed(1) + 'M';
-            } else if (num >= 1000) {
-                return (num / 1000).toFixed(1) + 'K';
-            }
-            return Math.round(num).toLocaleString();
-        }
+        // Table sorting
+        document.querySelectorAll('#dataTable th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.dataset.sort;
+                if (sortCol === col) {
+                    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortCol = col;
+                    sortDir = 'desc';
+                }
+
+                document.querySelectorAll('#dataTable th').forEach(h => h.classList.remove('sorted'));
+                th.classList.add('sorted');
+                renderTable();
+            });
+        });
     </script>
 </body>
 </html>
